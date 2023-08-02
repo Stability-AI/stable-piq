@@ -192,6 +192,13 @@ def download_tensor(url: str, root: str, map_location: str = 'cpu') -> torch.Ten
     return torch.load(download_target, map_location=map_location)
 
 
+def load_local_tensor(path: str, map_location: str = 'cpu') -> torch.Tensor:
+    if os.path.isfile(path):
+        return torch.load(path, map_location=map_location)
+    else:
+        raise ValueError("Unable to find tensor file at path {}".format(path))
+
+
 def is_sha256_hash(string: str) -> Optional[re.Match]:
     """ Checks whether the provided sting is a valid SHA256 hash. """
     pattern = re.compile("^[a-fA-F0-9]{64}$")

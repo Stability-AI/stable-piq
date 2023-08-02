@@ -16,7 +16,7 @@ from torch.nn.modules.loss import _Loss
 from typing import Union
 
 from piq.feature_extractors import clip
-from piq.utils.common import download_tensor, _validate_input
+from piq.utils.common import download_tensor, load_local_tensor, _validate_input
 
 
 OPENAI_CLIP_MEAN = (0.48145466, 0.4578275, 0.40821073)
@@ -73,7 +73,7 @@ class CLIPIQA(_Loss):
         Zhou, Kaiyang, et al. "Learning to prompt for vision-language models." International
         Journal of Computer Vision 130.9 (2022): 2337-2348.
     """
-    def __init__(self, data_range: Union[float, int] = 1.) -> None:
+    def __init__(self, data_range: Union[float, int] = 1., tokens_path: str = None) -> None:
         super().__init__()
 
         self.feature_extractor = clip.load().eval()
@@ -81,7 +81,10 @@ class CLIPIQA(_Loss):
             param.requires_grad = False
 
         # Pre-computed tokens for prompt pairs: "Good photo.", "Bad photo.".
-        tokens = download_tensor(TOKENS_URL, os.path.expanduser("~/.cache/clip"))
+        if tokens_path is None:
+            tokens = download_tensor(TOKENS_URL, os.path.expanduser("~/.cache/clip"))
+        else:
+            tokens = load_local_tensor(tokens_path)
 
         anchors = self.feature_extractor.encode_text(tokens).float()
         anchors = anchors / anchors.norm(dim=-1, keepdim=True)
