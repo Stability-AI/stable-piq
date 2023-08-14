@@ -71,17 +71,20 @@ def _download(url: str, root: str) -> str:
     return download_target
 
 
-def load() -> nn.Module:
+def load(local_clip_path: str = None) -> nn.Module:
     r"""Load a CLIP model.
 
     Returns:
         Initialized CLIP model.
     """
     # We use our snapshot by default and use OpenAI link as a backup in case of some trouble.
-    try:
-        model_path = _download(PIQ_CLIP_MODEL_PATH, os.path.expanduser("~/.cache/clip"))
-    except (URLError, HTTPError):
-        model_path = _download(OPENIQA_CLIP_MODEL_PATH, os.path.expanduser("~/.cache/clip"))
+    if local_clip_path is None:
+        try:
+            model_path = _download(PIQ_CLIP_MODEL_PATH, os.path.expanduser("~/.cache/clip"))
+        except (URLError, HTTPError):
+            model_path = _download(OPENIQA_CLIP_MODEL_PATH, os.path.expanduser("~/.cache/clip"))
+    else:
+        model_path = local_clip_path
 
     with open(model_path, "rb") as f:
         model = torch.jit.load(f, map_location="cpu").eval()

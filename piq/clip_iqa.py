@@ -73,10 +73,11 @@ class CLIPIQA(_Loss):
         Zhou, Kaiyang, et al. "Learning to prompt for vision-language models." International
         Journal of Computer Vision 130.9 (2022): 2337-2348.
     """
-    def __init__(self, data_range: Union[float, int] = 1., tokens_path: str = None) -> None:
+    def __init__(self, data_range: Union[float, int] = 1., tokens_path: str = None, 
+                 clip_path: str = None) -> None:
         super().__init__()
 
-        self.feature_extractor = clip.load().eval()
+        self.feature_extractor = clip.load(local_clip_path=clip_path).eval()
         for param in self.feature_extractor.parameters():
             param.requires_grad = False
 
